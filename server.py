@@ -79,14 +79,14 @@ def disconnect(sid):
 def sendAdmin(sid, data):
     for i,value in enumerate(role):
         if value["role"] == "admin":
-            sio.emit("messageAdmin",to=i)
+            sio.emit("messageAdmin", data, to=i)
             break
 
 @sio.event
 def sendAll(sid, data):
     for f, value in enumerate(role):
          if value["role"] == "client":
-            sio.emit("messageAll", to=f)
+            sio.emit("messageAll", data, to=f)
             break
 
 @sio.event
@@ -95,4 +95,5 @@ def setDimension(sid,data):
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
+
 
