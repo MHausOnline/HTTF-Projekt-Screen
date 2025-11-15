@@ -1,5 +1,5 @@
 import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
-const socket = io();
+const socket = io("http://172.18.246.18:5000");
 
 function registerData(request, sender, sendResponse){
 	io.emit(request.type,request.data)
@@ -22,10 +22,10 @@ function sendMessage(event,message){
 	)
 }
 
-socket.on("connect", () => {
+socket.io.on("connect", () => {
 	let events = ["messageAll","messageAdmin","set_uuid","joined_room"]
 	for(let ev of events){
-		socket.io.on(ev,(data)=>{sendMessage(ev,data)})
+		socket.on(ev,(data)=>{sendMessage({"type":ev,"data":data})})
 	}
 });
 
