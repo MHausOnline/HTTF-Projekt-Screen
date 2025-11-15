@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>A dummy page</title>
+</head>
+
+<body>
+<script src="overwriter.js"></script>
+<h1>This is a long title. It is meant to overflow the current page.</h1>
+<div id="collapse" onmouseover="console.log(this)">
+Hello. This div can be collapsed. This is intended for: Testing button clicks, but also for testing whether overflowing etc. is processed correctly.
+</div>
+<img id="testimage" src="https://upload.wikimedia.org/wikipedia/commons/8/8e/Hauskatze_langhaar.jpg">
+<button id="minimizer">Click to minimize</button>
+<br>
+<label>A checkbox:</label><input id="checkbox" type="checkbox">
+<a href="https://www.google.com">Test</a>
+<script>
+minimizer.addEventListener("click",(event)=>{
+	if (!event.isTrusted) {
+		console.warn('Blocked untrusted click event.');
+		return;
+	}
+	if (event.type !== 'click') {
+		console.warn(`Unexpected event type: ${event.type}`);
+		return;
+	}
+	console.log(event);
+	collapse.style.display= collapse.style.display == "none" ? "block":"none";
+	})
+</script>
+</body>
+
+</html>
