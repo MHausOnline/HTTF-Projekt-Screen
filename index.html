@@ -9,6 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
     <style>
+
+        * {
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
         button {
             border: none;
             border-radius: 20px;
@@ -180,7 +192,6 @@
             console.log("room sent")
             socket.emit("join_room",{"room":document.getElementById("roomId").value})
             event.preventDefault();
-
             showPosGrid()
         });
 
