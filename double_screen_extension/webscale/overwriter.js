@@ -3,17 +3,15 @@ if(!document.eventListenerIsOverwritten){
 	
 	Element.prototype.origAddEventListener = Element.prototype.addEventListener
 	Element.prototype.addEventListener = function(a,b,c){
-			console.log(this,a)
 			if(!this.eventListenerJson) this.eventListenerJson = {};
 			if(!this.eventListenerJson[a]) this.eventListenerJson[a] = [];
 			this.eventListenerJson[a].push(b)
 			
-			let newB = function(){
+			let newB = (function(){
 				if(!this.eventListenerFrozen){
-					b(...arguments)
+					b.bind(this)(...arguments)
 				}
-			}
-			newB.bind(this)
+			}).bind(this)
 			this.origAddEventListener(a,newB,c)
 	}
 	
@@ -86,7 +84,7 @@ if(!document.eventListenerIsOverwritten){
 		return path
 	}
 	
-	document.getElementByPath = function(path){
+	function getElementByPath(path){
 		let current = document
 		for(let step of path){
 			if(current.childNodes[step[0]].tagName = step[1]){
@@ -101,7 +99,7 @@ if(!document.eventListenerIsOverwritten){
 	}
 	
 	
-	document.getSerializedNode = function(parseNode){
+	function getSerializedNode(parseNode){
 		let serializedInfo = {}
 		if(parseNode.nodeName =="CANVAS"){
 			serializedInfo.canvasContent = parseNode.getContext("2d").getImageData(0,0,parseNode.scrollWidth,parseNode.scrollHeight);
@@ -131,7 +129,7 @@ if(!document.eventListenerIsOverwritten){
 		return serializedInfo
 	}
 	
-	document.makeNodeFromSerialized = function(json){
+	function makeNodeFromSerialized(json){
 		if(json.nodeType == 1){
 			let element = document.createElement(json.tagName)
 			if(json.nodeName =="CANVAS"){
@@ -149,7 +147,7 @@ if(!document.eventListenerIsOverwritten){
 			}
 			return element
 		}else if(json.nodeType == 2){
-			let element = document.createAttributeNode(json.localName)
+			let element = createAttributeNode(json.localName)
 			element.value = json.value
 			return element
 		}else if(json.nodeType == 3){
@@ -158,12 +156,12 @@ if(!document.eventListenerIsOverwritten){
 		}
 	}
 	
-	document.getSerialized = function(parseNode){
+	function getSerialized(parseNode){
 		let serializedChildren = []
 		for(let child of parseNode.childNodes){
-			if(child.nodeName!=="SCRIPT") serializedChildren.push(document.getSerialized(child))
+			if(child.nodeName!=="SCRIPT") serializedChildren.push(getSerialized(child))
 		}
-		let parsed = document.getSerializedNode(parseNode)
+		let parsed = getSerializedNode(parseNode)
 		
 		let events;
 		if(parsed.eventListenerJson){
@@ -175,27 +173,27 @@ if(!document.eventListenerIsOverwritten){
 		return {"node": parsed,"children":serializedChildren, "events":events}
 	}
 	
-	document.makeFromSerialized = function(json){
-		let parent = document.makeNodeFromSerialized(json.node)
+	function makeFromSerialized(json){
+		let parent = makeNodeFromSerialized(json.node)
 		for(let listener of json.events){
-			parent.addEventListener(listener,()=>{console.log(listener)})
+			parent.addEventListener(listener,function(){console.log(listener,this.getElementPath())})
 		}
 		for(let child of json.children){
-			parent.appendChild(document.makeFromSerialized(child))
+			parent.appendChild(makeFromSerialized(child))
 		}
 		return parent
 	}
 	
-	document.serializeSocketJson = function(element){
+	function serializeSocketJson(element){
 		return {
-			"content": document.getSerialized(element),
+			"content": getSerialized(element),
 			"path": element.getElementPath()
 			}
 	}
 	
-	document.parseSocketJson = function(json){
-		let element = document.getElementByPath(json.path)
-		element.replaceWith(document.makeFromSerialized(json.content))
+	function parseSocketJson(json){
+		let element = getElementByPath(json.path)
+		element.replaceWith(makeFromSerialized(json.content))
 	}
 	
 	

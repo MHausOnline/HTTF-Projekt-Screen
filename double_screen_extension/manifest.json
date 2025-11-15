@@ -1,0 +1,39 @@
+{
+    "manifest_version": 3,
+    "name": "DoubleScreenExtension",
+    "background": {
+      "scripts": ["background.js"],
+      "type": "module"
+    },
+    
+    "description": "An extension for connecting multiplt devices that will act like a single scren.",
+    
+    "icons": {
+        "213": "icon.png"
+    },
+    
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "all_frames": true,
+            "js": ["sharing.js"],
+            "run_at":"document_idle"
+        },
+        {
+            "matches": ["<all_urls>"],
+            "all_frames": true,
+            "js": ["overrider.js"],
+            "run_at":"document_start",
+            "world":"MAIN"
+        }
+    ],
+    "permissions": ["nativeMessaging","webRequest","activeTab","storage"],
+    "browser_specific_settings": {
+        "gecko": {
+          "id": "DoubleScreen",
+          "data_collection_permissions": {
+            "required": ["none"]
+          }
+        }
+      }
+}
