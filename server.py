@@ -51,7 +51,6 @@ def set_role(sid, data):
 def arrow_pressed(sid, data):
     direction = data.get("dir")
 
-    # Validierung
     if direction not in {"right", "left", "top", "bottom"}:
         print(f"problem whith direction {sid}: {direction}")
         return
