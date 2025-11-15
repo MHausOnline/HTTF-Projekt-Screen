@@ -142,6 +142,44 @@ function sendInteraction(element,event){
 	}
 }
 
+function showPosGrid(){
+	document.body.innerHTML += `<span id="relativePosContainer" style="position: absolute; top: 0px; left: 0px; width: 100vw; height: 100vh; margin: 0px; pointer-events: none;">
+        <span id="leftArrow" style="position: absolute;font-size: 20pt;pointer-events: all; left:0px; top:50%;">
+            &#x2190;
+        </span>
+        <span id="topArrow" style="position: absolute;font-size: 20pt;pointer-events: all; top:0px; right:50%;">
+            &#x2191;
+        </span>
+        <span id="rightArrow" style="position: absolute;font-size: 20pt;pointer-events: all; right:0px; top:50%;">
+            &#x2192;
+        </span>
+        <span id="bottomArrow" style="position: absolute;font-size: 20pt;pointer-events: all; bottom:0px; right:50%;">
+            &#x2193;
+        </span>
+    </span>`
+
+
+	document.getElementById("relativePosContainer").style.display = "block";
+
+	document.getElementById("leftArrow").addEventListener('click',(event) => {
+		browser.runtime.sendMessage({"type":"arrow_pressed","data":{"dir":"left"}})
+		console.log("arrow pressed")
+	})
+	document.getElementById("rightArrow").addEventListener('click',(event) => {
+		browser.runtime.sendMessage({"type":"arrow_pressed","data":{"dir":"right"}})
+		console.log("arrow pressed")
+	})
+	document.getElementById("topArrow").addEventListener('click',(event) => {
+		browser.runtime.sendMessage({"type":"arrow_pressed","data":{"dir":"top"}})
+		console.log("arrow pressed")
+	})
+	document.getElementById("bottomArrow").addEventListener('click',(event) => {
+		browser.runtime.sendMessage({"type":"arrow_pressed","data":{"dir":"bottom"}})
+		console.log("arrow pressed")
+	})
+
+    }
+
 function joinFunc(){
 	joinButton.remove()
 	shareButton.remove()
