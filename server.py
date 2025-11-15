@@ -1,10 +1,11 @@
 import eventlet
+import time 
 import socketio
 import uuid
 import random
 import json
 
-
+arrow_events = []
 devices = []
 role = {}
 dimensions = {}
@@ -47,9 +48,20 @@ def set_role(sid, data):
 
 
 @sio.event
-def arrow_pressed(sid,data):
-    data["dir"] #"right","left","top","bottom"
-    
+def arrow_pressed(sid, data):
+    direction = data.get("dir")
+
+    # Validierung
+    if direction not in {"right", "left", "top", "bottom"}:
+        print(f"problem whith direction {sid}: {direction}")
+        return
+
+    arrow_events.append({
+        "sid": sid,
+        "dir": direction,
+        "timestamp": time.time()
+    })
+
         
 
 
