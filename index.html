@@ -16,7 +16,7 @@
         
 
         .container {
-            padding-top:10px;
+            padding-top:30px;
             margin: auto;
             width: 50%;
         }
@@ -29,13 +29,64 @@
             width: 50%;
         }
 
-        #adminContainer, #clientContainer {
+        #adminContainer, #clientContainer, #relativePosContainer {
             display:none;
+        }
+
+        #relativePosContainer {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+            height: 100vh;
+            margin: 0px;
+            pointer-events: none;
+        }
+
+        #relativePosContainer > *{
+            position: absolute;
+            font-size: 20pt;
+            pointer-events: all;
+        }
+
+        #relativePosContainer > #leftArrow {
+            left:0px;
+            top:50%;
+        }
+
+        #relativePosContainer > #rightArrow {
+            right:0px;
+            top:50%;
+        }
+
+        #relativePosContainer > #topArrow {
+            top:0px;
+            right:50%;
+        }
+
+        #relativePosContainer > #bottomArrow {
+            bottom:0px;
+            right:50%;
         }
 
     </style>
 </head>
 <body>
+    <span id="relativePosContainer">
+        <span id="leftArrow">
+            &#x2190;
+        </span>
+        <span id="topArrow">
+            &#x2191;
+        </span>
+        <span id="rightArrow">
+            &#x2192;
+        </span>
+        <span id="bottomArrow">
+            &#x2193;
+        </span>
+    </span>
+
     <div id="chooseContainer" class="container">
         <button id="roleAdmin">Host a session</button><br>
         <button id="roleClient">Join a session</button>
@@ -85,14 +136,11 @@
 
     document.getElementById("roleClient").addEventListener("click",(event)=>{
         socket.emit("set_role",{"role":"client"})
-        user_role = "client"
+        user_role = "client";
         console.log("role client")
         hideInitialSelect()
         selectClient()
     })
-
-    
-    socket.emit("set_role",{"role":"client"})
 
     socket.on("joined_room",(data)=>{
         console.log("joining room",data.room,"successfull")
@@ -103,12 +151,32 @@
         document.getElementById("chooseContainer").style.display = "none";
     }
 
+    function showPosGrid(){
+        document.getElementById("relativePosContainer").style.display = "block";
+
+        document.getElementById("leftArrow").addEventListener('click',(event) => {
+            socket.emit("arrow_pressed",{"dir":"left"})
+        })
+        document.getElementById("rightArrow").addEventListener('click',(event) => {
+            socket.emit("arrow_pressed",{"dir":"right"})
+        })
+        document.getElementById("topArrow").addEventListener('click',(event) => {
+            socket.emit("arrow_pressed",{"dir":"top"})
+        })
+        document.getElementById("bottomArrow").addEventListener('click',(event) => {
+            socket.emit("arrow_pressed",{"dir":"bottom"})
+        })
+
+    }
+
     function selectClient(){
         document.getElementById("clientContainer").style.display = "block";
         document.getElementById("sessionSubmit").addEventListener("submit", (event) => {
             console.log("room sent")
             socket.emit("join_room",{"room":document.getElementById("roomId").value})
             event.preventDefault();
+
+            showPosGrid()
         });
 
     }
@@ -121,7 +189,11 @@
             console.log("url sent")
             location.href = "https://"+document.getElementById("url").value.replaceAll("http:","").replaceAll("https:","")
             event.preventDefault();
+
+            showPosGrid()
         });
+
+        
     }
     </script>
 </body>
