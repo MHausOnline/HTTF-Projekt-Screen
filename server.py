@@ -10,7 +10,7 @@ devices = []
 role = {}
 dimensions = {}
 opposite = {"left":"right","right":"left","top":"bottom","bottom":"top"}
-vectors = {"left":[-1,0],"left":[1,0],"top":[0,-1],"top":[0,1],}
+vectors = {"left":[-1,0],"right":[1,0],"top":[0,-1],"bottom":[0,1],}
 
 sio = socketio.Server()
 app = socketio.WSGIApp(sio, static_files={
@@ -31,38 +31,56 @@ def enterRoom(sid,roomName):
 
 def device_pos_set(sid):
     for i in range(0,len(devices)):
+        print("compare:",sid, devices[i]["sid"],"index:",i)
         if devices[i]["sid"] == sid:
             return i
     
     return None
 
 def arrow_check():
-    for i arrow_events:
+    for i in arrow_events:
         for y in arrow_events:
             if i["dir"] == opposite[y["dir"]]:
-                if device_pos_set(i["sid"]) != None and device_pos_set(y["sid"]):
+                print(i["dir"], opposite[y["dir"]])
+                if device_pos_set(i["sid"]) != None and device_pos_set(y["sid"]) != None:
                     print("the user made a mistake")
                     return
 
-                if device_pos_set(i["sid"]) != None:
-                    index = device_pos_set(i["dir"])
+                    arrow_events.remove(i)
+                    arrow_events.remove(y)
+
+                elif device_pos_set(i["sid"]) != None:
+                    index = device_pos_set(i["sid"])
 
                     vec = vectors[i["dir"]]
 
                     x_p = devices[index]["pos"][0] + vec[0]
                     y_p = devices[index]["pos"][1] + vec[1]
 
-                    devices.append({"sid":y["sid"],"pos":[x_p,y_p]})
+                    devices.append({"sid":y["sid"],"pos":[x_p,y_p], "width":dimensions[y["sid"]][0],"height":dimensions[y["sid"]][1]})
+
+                    arrow_events.remove(i)
+                    arrow_events.remove(y)
                 
-                if device_pos_set(y["sid"]) != None:
-                    index = device_pos_set(y["dir"])
+                elif device_pos_set(y["sid"]) != None:
+                    index = device_pos_set(y["sid"])
 
                     vec = vectors[y["dir"]]
 
                     x_p = devices[index]["pos"][0] + vec[0]
                     y_p = devices[index]["pos"][1] + vec[1]
 
-                    devices.append({"sid":i["sid"],"pos":[x_p,y_p]})
+                    devices.append({"sid":i["sid"],"pos":[x_p,y_p], "width":dimensions[i["sid"]][0],"height":dimensions[i["sid"]][1]})
+
+                    arrow_events.remove(i)
+                    arrow_events.remove(y)
+                
+                else:
+                    print("both are not positioned yet")
+                    print(i["sid"], y["sid"])
+                    arrow_events.remove(i)
+                    arrow_events.remove(y)
+    print(devices)
 
 
 
@@ -134,7 +152,7 @@ def sendAll(sid, data):
 
 @sio.event
 def setDimension(sid,data):
-    dimensions[sid] = data.dim
+    dimensions[sid] = data["dim"]
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
