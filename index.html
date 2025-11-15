@@ -5,6 +5,29 @@
     <title>Grenzenlose Gerätkommunikation</title>
 </head>
 <body>
-    Hello world!
+    <script type="importmap">
+    {
+        "imports": {
+        "socket.io-client": "https://cdn.socket.io/4.8.1/socket.io.esm.min.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+    import { io } from "socket.io-client";
+
+    const socket = io();
+
+    socket.emit("set_role",{"role":"admin"})
+    socket.emit("set_role",{"role":"client"})
+
+    socket.on("joined_room",(data)=>{
+        console.log("joining room",data.room,"successfull")
+    })
+
+    socket.on("joined_room",(data)=>{
+        console.log("joining room",data.room,"successfull")
+    })
+    </script>
 </body>
 </html>
