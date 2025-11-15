@@ -25,13 +25,7 @@ def createRoom(sid):
 def enterRoom(sid,roomName):
     sio.enter_room(sid,roomName)
     sio.emit("joined_room",{"room":roomName},to=sid)
-
-
-@sio.event
-def connect(sid, environ, auth):
-    random_uuid = uuid.uuid4()
-    sio.emit("set_uuid",{"uuid":str(random_uuid)},to=sid)
-    print("connect")
+    
 
 @sio.event
 def connect(sid, environ, auth):
@@ -47,6 +41,18 @@ def set_role(sid, data):
         createRoom(sid)
         print("roomthere")
         devices.append({"sid":sid,"pos":[0,0],"width":dimensions[sid][0],"height":dimensions[sid][1]})
+
+    if data["role"] == "client":
+        print("welcome")
+
+
+@sio.event
+def arrow_pressed(sid,data):
+    data["dir"] #"right","left","top","bottom"
+    
+        
+
+
 
 @sio.event
 def join_room(sid,data):
