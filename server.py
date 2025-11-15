@@ -15,16 +15,16 @@ app = socketio.WSGIApp(sio, static_files={
 role = {}
 
 @sio.event
-def connect(sid, environ):
+def connect(sid, environ, auth):
     random_uuid = uuid.uuid4()
-    sio.emit("set_uuid",{"uuid":random_uuid},to=sid)
+    sio.emit("set_uuid",{"uuid":str(random_uuid)},to=sid)
     print("connect")
 
 @sio.event
 def set_role(sid, data):
-    role[str(sid)] = {"role":data.role}
+    role[str(sid)] = {"role":data["role"]}
 
-    if data.role == "admin":
+    if data["role"] == "admin":
         createRoom(sid)
         print("roomthere")
 
@@ -52,4 +52,4 @@ def enterRoom(sid,roomName):
     sio.emit("joined_room",{"room":roomName},to=sid)
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 5000)), app)
+    eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
