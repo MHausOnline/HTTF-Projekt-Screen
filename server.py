@@ -51,5 +51,25 @@ def enterRoom(sid,roomName):
     sio.enter_room(sid,roomName)
     sio.emit("joined_room",{"room":roomName},to=sid)
 
+    
+
+
+
+@sio.event 
+def sendAdmin(sid, data):
+    for i,value in enumerate(role):
+        if value["role"] == "admin":
+            sio.emit("messageAdmin",to=i)
+            break
+
+@sio.event
+def sendAll(sid, data):
+    for f, value in enumerate(role):
+         if value["role"] == "client":
+            sio.emit("messageAll", to=f)
+            break
+
+
+
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
