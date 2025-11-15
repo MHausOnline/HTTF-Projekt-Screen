@@ -173,15 +173,19 @@
 
         document.getElementById("leftArrow").addEventListener('click',(event) => {
             socket.emit("arrow_pressed",{"dir":"left"})
+            console.log("arrow pressed")
         })
         document.getElementById("rightArrow").addEventListener('click',(event) => {
             socket.emit("arrow_pressed",{"dir":"right"})
+            console.log("arrow pressed")
         })
         document.getElementById("topArrow").addEventListener('click',(event) => {
             socket.emit("arrow_pressed",{"dir":"top"})
+            console.log("arrow pressed")
         })
         document.getElementById("bottomArrow").addEventListener('click',(event) => {
             socket.emit("arrow_pressed",{"dir":"bottom"})
+            console.log("arrow pressed")
         })
 
     }
