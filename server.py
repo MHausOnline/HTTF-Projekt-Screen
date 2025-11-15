@@ -2,17 +2,36 @@ import eventlet
 import socketio
 import uuid
 import random
-# Generate a random UUID
+import json
 
-random_uuid = uuid.uuid4()
 
+devices = []
+role = {}
+dimensions = {}
 
 sio = socketio.Server()
 app = socketio.WSGIApp(sio, static_files={
     '/': {'content_type': 'text/html', 'filename': 'index.html'}
 })
 
-role = {}
+
+
+def createRoom(sid):
+    roomName = str(random.randint(0,9)) + str(random.randint(0,9))
+    enterRoom(sid,roomName)
+
+    return roomName
+
+def enterRoom(sid,roomName):
+    sio.enter_room(sid,roomName)
+    sio.emit("joined_room",{"room":roomName},to=sid)
+
+
+@sio.event
+def connect(sid, environ, auth):
+    random_uuid = uuid.uuid4()
+    sio.emit("set_uuid",{"uuid":str(random_uuid)},to=sid)
+    print("connect")
 
 @sio.event
 def connect(sid, environ, auth):
@@ -27,6 +46,7 @@ def set_role(sid, data):
     if data["role"] == "admin":
         createRoom(sid)
         print("roomthere")
+        devices.append({"sid":sid,"pos":[0,0],"width":dimensions[sid][0],"height":dimensions[sid][1]})
 
 @sio.event
 def join_room(sid,data):
@@ -40,20 +60,6 @@ def my_message(sid, data):
 @sio.event
 def disconnect(sid):
     print('disconnect ', sid)
-
-def createRoom(sid):
-    roomName = str(random.randint(0,9)) + str(random.randint(0,9))
-    enterRoom(sid,roomName)
-
-    return roomName
-
-def enterRoom(sid,roomName):
-    sio.enter_room(sid,roomName)
-    sio.emit("joined_room",{"room":roomName},to=sid)
-
-    
-
-
 
 @sio.event 
 def sendAdmin(sid, data):
@@ -69,7 +75,10 @@ def sendAll(sid, data):
             sio.emit("messageAll", to=f)
             break
 
-
+@sio.event
+def setDimension(sid,data):
+    dimensions[sid] = data.dim
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
+
