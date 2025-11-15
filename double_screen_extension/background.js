@@ -1,8 +1,11 @@
-import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
-const socket = io("http://172.18.246.18:5000");
+import {io} from "./socket/node_modules/socket.io/client-dist/socket.io.esm.min.js";
 
-function registerData(request, sender, sendResponse){
-	io.emit(request.type,request.data)
+const socket = io("http://localhost:8000");
+
+socket.emit("join_room",{"room":""})
+
+function sendData(request, sender, sendResponse){
+	socket.emit(request.type,request.data)
 }
 browser.runtime.onMessage.addListener(sendData)
 
@@ -28,4 +31,7 @@ socket.io.on("connect", () => {
 		socket.on(ev,(data)=>{sendMessage({"type":ev,"data":data})})
 	}
 });
+
+console.log("running...")
+
 
