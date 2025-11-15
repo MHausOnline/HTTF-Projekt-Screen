@@ -43,20 +43,20 @@
     
     <div id="adminContainer" class="container">
         <h1>Hosting a Session</h1>
-        <submit id="urlSubmit">
+        <form id="urlSubmit">
             <label for="url">Enter your desired URL:</label><br>
             <input id="url" name="url" type="text">
-        </submit>
+        </form>
         <br><br>
         <span>Your rooms name is: <span id="roomName"></span></span>
     </div>
 
     <div id="clientContainer" class="container">
         <h1>Joining a Session</h1>
-        <submit id="sessionSubmit">
+        <form id="sessionSubmit">
             <label for="roomId">Enter the Session's name:</label><br>
             <input id="roomId" name="roomId" type="text">
-        </submit>
+        </form>
         
     </div>
 
@@ -106,9 +106,9 @@
     function selectClient(){
         document.getElementById("clientContainer").style.display = "block";
         document.getElementById("sessionSubmit").addEventListener("submit", (event) => {
-            event.preventDefault();
             console.log("room sent")
             socket.emit("join_room",{"room":document.getElementById("roomId").value})
+            event.preventDefault();
         });
 
     }
@@ -119,8 +119,8 @@
 
         document.getElementById("urlSubmit").addEventListener("submit", (event) => {
             console.log("url sent")
+            location.href = "https://"+document.getElementById("url").value.replaceAll("http:","").replaceAll("https:","")
             event.preventDefault();
-            location.href = document.getElementById("url").value
         });
     }
     </script>
