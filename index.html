@@ -3,8 +3,63 @@
 <head>
     <meta charset="UTF-8" />
     <title>Grenzenlose Gerätkommunikation</title>
+    <style>
+        button {
+            border: none;
+            border-radius: 20px;
+            background-color: black;
+            color: white;
+            font-size: 30pt;
+            margin-bottom: 10vh !important;
+            margin-top: 10vh !important;
+        }
+        
+
+        .container {
+            padding-top:10px;
+            margin: auto;
+            width: 50%;
+        }
+
+        .container > * {
+            margin-bottom: auto;
+            margin-left: 25%;
+            margin-right: 25%;
+            margin-top: auto;
+            width: 50%;
+        }
+
+        #adminContainer, #clientContainer {
+            display:none;
+        }
+
+    </style>
 </head>
 <body>
+    <div id="chooseContainer" class="container">
+        <button id="roleAdmin">Host a session</button><br>
+        <button id="roleClient">Join a session</button>
+    </div>
+    
+    <div id="adminContainer" class="container">
+        <h1>Hosting a Session</h1>
+        <submit id="urlSubmit">
+            <label for="url">Enter your desired URL:</label><br>
+            <input id="url" name="url" type="text">
+        </submit>
+        <br><br>
+        <span>Your rooms name is: <span id="roomName"></span></span>
+    </div>
+
+    <div id="clientContainer" class="container">
+        <h1>Joining a Session</h1>
+        <submit id="sessionSubmit">
+            <label for="roomId">Enter the Session's name:</label><br>
+            <input id="roomId" name="roomId" type="text">
+        </submit>
+        
+    </div>
+
     <script type="importmap">
     {
         "imports": {
@@ -17,17 +72,57 @@
     import { io } from "socket.io-client";
 
     const socket = io();
+    var current_room;
+    var user_role;
 
-    socket.emit("set_role",{"role":"admin"})
+    document.getElementById("roleAdmin").addEventListener("click",(event)=>{
+        socket.emit("set_role",{"role":"admin"})
+        user_role = "admin";
+        console.log("role admin")
+        hideInitialSelect();
+        selectAdmin();
+    })
+
+    document.getElementById("roleClient").addEventListener("click",(event)=>{
+        socket.emit("set_role",{"role":"client"})
+        user_role = "client"
+        console.log("role client")
+        hideInitialSelect()
+        selectClient()
+    })
+
+    
     socket.emit("set_role",{"role":"client"})
 
     socket.on("joined_room",(data)=>{
         console.log("joining room",data.room,"successfull")
+        document.getElementById("roomName").innerText = data.room;
     })
 
-    socket.on("joined_room",(data)=>{
-        console.log("joining room",data.room,"successfull")
-    })
+    function hideInitialSelect(){
+        document.getElementById("chooseContainer").style.display = "none";
+    }
+
+    function selectClient(){
+        document.getElementById("clientContainer").style.display = "block";
+        document.getElementById("sessionSubmit").addEventListener("submit", (event) => {
+            event.preventDefault();
+            console.log("room sent")
+            socket.emit("join_room",{"room":document.getElementById("roomId").value})
+        });
+
+    }
+
+    function selectAdmin(){
+        document.getElementById("adminContainer").style.display = "block";
+        document.getElementById("roomName").innerText = "loading...";
+
+        document.getElementById("urlSubmit").addEventListener("submit", (event) => {
+            console.log("url sent")
+            event.preventDefault();
+            location.href = document.getElementById("url").value
+        });
+    }
     </script>
 </body>
 </html>
