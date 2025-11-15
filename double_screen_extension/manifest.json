@@ -5,7 +5,7 @@
       "scripts": ["background.js"],
       "type": "module"
     },
-    
+    "version":"1.0",
     "description": "An extension for connecting multiplt devices that will act like a single scren.",
     
     "icons": {
@@ -30,7 +30,7 @@
     "permissions": ["nativeMessaging","webRequest","activeTab","storage"],
     "browser_specific_settings": {
         "gecko": {
-          "id": "DoubleScreen",
+          "id": "DoubleScreen@HTTF",
           "data_collection_permissions": {
             "required": ["none"]
           }

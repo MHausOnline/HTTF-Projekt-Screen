@@ -110,4 +110,4 @@ function parseSocketJson(json){
 	element.replaceWith(makeFromSerialized(json.content))
 }
 
-
+browser.runtime.onMessage.addListener()
