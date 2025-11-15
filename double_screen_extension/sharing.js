@@ -87,10 +87,85 @@ function getSerialized(parseNode){
 	return {"node": parsed,"children":serializedChildren, "events":events}
 }
 
+
+var role = "passive"
+var room
+
+let infoDiv = document.createElement("div")
+infoDiv.style.zIndex = 1000
+infoDiv.style.backgroundColor = "white" 
+infoDiv.style.position = "sticky"
+infoDiv.style.bottom = "0px"
+
+let joinButton = document.createElement("button")
+joinButton.innerText = "Join a screen"
+joinButton.addEventListener("click",joinFunc)
+infoDiv.appendChild(joinButton)
+
+let shareButton = document.createElement("button")
+shareButton.innerText = "Expand screen"
+shareButton.addEventListener("click",shareFunc)
+infoDiv.appendChild(shareButton)
+
+document.body.appendChild(infoDiv)
+
+function askQuestion(question){
+	return prompt(question)
+}
+
+function parseSocketJson(json){
+	let element = getElementByPath(json.path)
+	element.replaceWith(makeFromSerialized(json.content))
+}
+
+function socketListener(message,sender,sendRes){
+	if(message.type == "set_role"){
+		role = message.data.role
+	}else if(message.type == "joined_room"){
+		role = message.data.role
+	}else if(message.type == "messageAll" && role=="client"){
+		parseSocketJson(message.data)
+	}else if(message.type == "messageAdmin" && role=="admin"){
+		let target = getElementByPath(message.data.path)
+		target.higherAccessDispatch(message.data.event)
+	}
+}
+
+function socketUpdater(mutation,observer){
+	let change = serializeSocketJson(mutation.target)
+	browser.runtime.sendMessage({"type":"sendAll","data":change})
+}
+
+function sendInteraction(element,event){
+	if(role=="client"){
+		browser.runtime.sendMessage({"type":"sendAdmin","data":{"path":element.getElementPath(),"event":event}})
+	}
+}
+
+function joinFunc(){
+	joinButton.remove()
+	shareButton.remove()
+	browser.runtime.sendMessage({"type":"roleAdmin","data":{}})
+	let roomId = askQuestion("What id?")
+	browser.runtime.sendMessage({"type":"join_room","data":{"room":roomId}})
+}
+function shareFunc(){
+	joinButton.remove()
+	shareButton.remove()
+	browser.runtime.sendMessage({"type":"roleAdmin","data":{}})
+	browser.runtime.sendMessage({"type":"join_room","data":{"room":Math.floor(Math.random()*1000)}})
+	let observer = new MutationObserver(socketUpdater);
+	observer.observe(document.body, {
+	  subtree: true,
+	  childList: true
+	})
+}
+
+
 function makeFromSerialized(json){
 	let parent = makeNodeFromSerialized(json.node)
 	for(let listener of json.events){
-		parent.addEventListener(listener,function(){console.log(listener,this.getElementPath())})
+		parent.addEventListener(listener,function(){sendInteraction(this,listener)})
 	}
 	for(let child of json.children){
 		parent.appendChild(makeFromSerialized(child))
@@ -105,9 +180,9 @@ function serializeSocketJson(element){
 		}
 }
 
-function parseSocketJson(json){
-	let element = getElementByPath(json.path)
-	element.replaceWith(makeFromSerialized(json.content))
-}
 
-browser.runtime.onMessage.addListener()
+browser.runtime.onMessage.addListener(socketListener)
+
+
+
+
