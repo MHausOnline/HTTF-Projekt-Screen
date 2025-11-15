@@ -55,7 +55,6 @@ def arrow_pressed(sid, data):
     if direction not in {"right", "left", "top", "bottom"}:
         print(f"problem whith direction {sid}: {direction}")
         return
-
     arrow_events.append({
         "sid": sid,
         "dir": direction,
@@ -63,8 +62,6 @@ def arrow_pressed(sid, data):
     })
 
         
-
-
 
 @sio.event
 def join_room(sid,data):
