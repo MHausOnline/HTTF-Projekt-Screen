@@ -8,8 +8,8 @@ if(!document.eventListenerIsOverwritten){
 			this.eventListenerJson[a].push(b)
 			
 			let newB = (function(){
-				if(!this.eventListenerFrozen){
-					b.bind(this)(...arguments)
+				if(!this.eventListenerFrozen){ 
+					if(b instanceof Function) b.bind(this)(...arguments)
 				}
 			}).bind(this)
 			this.origAddEventListener(a,newB,c)

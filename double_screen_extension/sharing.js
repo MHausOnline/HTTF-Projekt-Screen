@@ -1,3 +1,13 @@
+function getElementPath(el){
+		let path= []
+		let current = el
+		while(current.parentNode){
+			let index = [...current.parentNode.childNodes].indexOf(current)
+			path.unshift([index, current.tagName])
+			current = current.parentNode
+		}
+		return path
+	}
 function getElementByPath(path){
 	let current = document
 	for(let step of path){
@@ -18,11 +28,11 @@ function getSerializedNode(parseNode){
 	if(parseNode.nodeName =="CANVAS"){
 		serializedInfo.canvasContent = parseNode.getContext("2d").getImageData(0,0,parseNode.scrollWidth,parseNode.scrollHeight);
 	}
-	for(let prop in parseNode){
+	/*for(let prop in parseNode){
 		if(typeof parseNode[prop]!= "function"){
 			serializedInfo[prop] = parseNode[prop]
 		}
-	}
+	}*/
 	if(parseNode.nodeType == 1){
 		serializedInfo.attributeJson = {}
 		for(let attrName of parseNode.getAttributeNames()){
@@ -42,7 +52,7 @@ function getSerializedNode(parseNode){
 	}
 	return serializedInfo
 }
-
+let overwriteAttributes = ["onafterprint","onbeforeprint","onbeforeunload","onhashchange","onload","onmessage","onoffline","ononline","onpagehide","onpageshow","onpopstate","onresize","onstorage","onunload","onblur","onchange","oncontextmenu","onfocus","oninput","oninvalid","onreset","onsearch","onselect","onsubmit","onkeydown","onkeypress","onkeyup","onclick","ondblclick","onmousedown","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onwheel","ondrag","ondragend","ondragenter","ondragleave","ondragover","ondragstart","ondrop","onscroll","oncopy","oncut","onpaste","onabort","oncanplay","oncanplaythrough","oncuechange","ondurationchange","onemptied","onended","onerror","onloadeddata","onloadedmetadata","onloadstart","onpause","onplay","onplaying","onprogress","onratechange","onseeked","onseeking","onstalled","onsuspend","ontimeupdate","onvolumechange","onwaiting","ontoggle"]
 function makeNodeFromSerialized(json){
 	if(json.nodeType == 1){
 		let element = document.createElement(json.tagName)
@@ -50,12 +60,12 @@ function makeNodeFromSerialized(json){
 			element.getContext("2d").putImageData(json.canvasContent);
 			delete json.canvasContent
 		}
-		for(let prop in json){
+		/*for(let prop in json){
 			let desc = Object.getOwnPropertyDescriptor(element, prop)
 			if(typeof json[prop]!= "function" && desc && desc.writable){
 				element[prop] = json[prop]
 			}
-		}
+		}*/
 		for(let attrName in json.attributeJson){
 			element.setAttribute(attrName,json.attributeJson[attrName])
 		}
@@ -98,7 +108,7 @@ infoDiv.style.position = "sticky"
 infoDiv.style.bottom = "0px"
 
 let joinButton = document.createElement("button")
-joinButton.innerText = "Join a screen"
+joinButton.innerText = "Join screen"
 joinButton.addEventListener("click",joinFunc)
 infoDiv.appendChild(joinButton)
 
@@ -109,8 +119,20 @@ infoDiv.appendChild(shareButton)
 
 document.body.appendChild(infoDiv)
 
-function askQuestion(question){
-	return prompt(question)
+function askQuestion(question,callback){
+	let container = document.createElement("div")
+	container.style.backgroundColor = "white" 
+	container.style.position = "fixed"
+	container.style.margin = "auto"
+	container.style.bottom = "0px"
+	container.style.zIndex = 10000
+	let theForm = document.createElement("form")
+	let input = document.createElement("input")
+	theForm.appendChild(document.createTextNode(question))
+	theForm.appendChild(input)
+	container.appendChild(theForm)
+	document.body.appendChild(container)
+	theForm.addEventListener("submit",(event)=>{container.remove();event.preventDefault();callback(input.value);})
 }
 
 function parseSocketJson(json){
@@ -131,20 +153,22 @@ function socketListener(message,sender,sendRes){
 	}
 }
 
-function socketUpdater(mutation,observer){
-	let change = serializeSocketJson(mutation.target)
-	browser.runtime.sendMessage({"type":"sendAll","data":change})
+function socketUpdater(mutationList,observer){
+	for (const mutation of mutationList) {
+		let change = serializeSocketJson(mutation.target)
+		browser.runtime.sendMessage({"type":"sendAll","data":change})
+	}
 }
 
 function sendInteraction(element,event){
 	if(role=="client"){
-		browser.runtime.sendMessage({"type":"sendAdmin","data":{"path":element.getElementPath(),"event":event}})
+		browser.runtime.sendMessage({"type":"sendAdmin","data":{"path":getElementPath(element),"event":event}})
 	}
 }
 
 function showPosGrid(){
-	document.body.innerHTML += `<span id="relativePosContainer" style="position: absolute; top: 0px; left: 0px; width: 100vw; height: 100vh; margin: 0px; pointer-events: none;">
-        <span id="leftArrow" style="position: absolute;font-size: 20pt;pointer-events: all; left:0px; top:50%;">
+	document.body.innerHTML += `<span id="relativePosContainer" style="position: sticky; top: 0px; left: 0px; width: 100vw; height: 100vh; margin: 0px; pointer-events: none;">
+        <span id="leftArrow" style="position: sticky;font-size: 20pt;pointer-events: all; left:0px; top:50%;">
             &#x2190;
         </span>
         <span id="topArrow" style="position: absolute;font-size: 20pt;pointer-events: all; top:0px; right:50%;">
@@ -177,21 +201,31 @@ function showPosGrid(){
 		browser.runtime.sendMessage({"type":"arrow_pressed","data":{"dir":"bottom"}})
 		console.log("arrow pressed")
 	})
-
-    }
+}
 
 function joinFunc(){
 	joinButton.remove()
 	shareButton.remove()
-	browser.runtime.sendMessage({"type":"roleAdmin","data":{}})
-	let roomId = askQuestion("What id?")
-	browser.runtime.sendMessage({"type":"join_room","data":{"room":roomId}})
+	browser.runtime.sendMessage({"type":"roleClient","data":{}})
+	let roomId = askQuestion("What id?",(value)=>{
+		infoDiv.innerHTML = ""
+		infoDiv.innerText = value
+		showPosGrid()
+		browser.runtime.sendMessage({"type":"join_room","data":{"room":roomId}})
+	})
+	
+	
 }
 function shareFunc(){
 	joinButton.remove()
 	shareButton.remove()
 	browser.runtime.sendMessage({"type":"roleAdmin","data":{}})
-	browser.runtime.sendMessage({"type":"join_room","data":{"room":Math.floor(Math.random()*1000)}})
+	let id = Math.floor(Math.random()*1000)
+	infoDiv.innerHTML = ""
+	infoDiv.innerText = id
+	browser.runtime.sendMessage({"type":"join_room","data":{"room":id}})
+	let change = serializeSocketJson(document.body)
+	browser.runtime.sendMessage({"type":"sendAll","data":change})
 	let observer = new MutationObserver(socketUpdater);
 	observer.observe(document.body, {
 	  subtree: true,
@@ -214,7 +248,7 @@ function makeFromSerialized(json){
 function serializeSocketJson(element){
 	return {
 		"content": getSerialized(element),
-		"path": element.getElementPath()
+		"path": getElementPath(element)
 		}
 }
 
