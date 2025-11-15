@@ -12,7 +12,7 @@ dimensions = {}
 opposite = {"left":"right","right":"left","top":"bottom","bottom":"top"}
 vectors = {"left":[-1,0],"right":[1,0],"top":[0,-1],"bottom":[0,1],}
 
-sio = socketio.Server()
+sio = socketio.Server(cors_allowed_origins=['*'])
 app = socketio.WSGIApp(sio, static_files={
     '/': {'content_type': 'text/html', 'filename': 'index.html'}
 })
