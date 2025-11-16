@@ -12,14 +12,12 @@ const socket = io("http://localhost:8000");
 
 const css = `
 	html, body {
-	zoom: 1;
-	width: 200vw;
-	overflow-x: hidden;
+		overflow-x: hidden;
 	}
 
 	body * {
-	overflow-x: unset !important;
-	transform: unset !important;
+		overflow-x: unset !important;
+		transform: unset !important;
 	}
 `;
 
@@ -49,7 +47,8 @@ let saved = document.documentElement.innerHTML
 document.documentElement.innerHTML = "<head></head><body></body>"
 document.body.style.padding = "0px"
 document.body.style.margin = "0px"
-document.body.style.overflowY = "hidden"
+document.body.style.wisth = "200vw"
+document.body.style.overflowX = "hidden"
 
 
 document.body.appendChild(iframe);
