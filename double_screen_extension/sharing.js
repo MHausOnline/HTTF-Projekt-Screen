@@ -151,7 +151,7 @@ function getElementPath(el){
 		return path
 	}
 function getElementByPath(path){
-	let current = document.contentDocument
+	let current = iframe.contentDocument
 	for(let step of path){
 		if(current.childNodes[step[0]].tagName = step[1]){
 			current = current.childNodes[step[0]]
@@ -176,6 +176,7 @@ infoDiv.style.backgroundColor = "white"
 infoDiv.style.position = "sticky"
 infoDiv.style.bottom = "50px"
 
+
 let joinButton = document.createElement("button")
 joinButton.innerText = "Join screen"
 joinButton.addEventListener("click",joinFunc)
@@ -186,7 +187,7 @@ shareButton.innerText = "Expand screen"
 shareButton.addEventListener("click",shareFunc)
 infoDiv.appendChild(shareButton)
 
-document.contentDocument.body.appendChild(infoDiv)
+document.body.appendChild(infoDiv)
 
 console.log(infoDiv)
 
@@ -202,7 +203,7 @@ function askQuestion(question,callback){
 	theForm.appendChild(document.createTextNode(question))
 	theForm.appendChild(input)
 	container.appendChild(theForm)
-	document.contentDocument.body.appendChild(container)
+	document.body.appendChild(container)
 	theForm.addEventListener("submit",(event)=>{container.remove();event.preventDefault();callback(input.value);})
 }
 
@@ -210,7 +211,7 @@ function parseSocketJson(json){
 	let element = getElementByPath(json.path)
 	element.innerHTML = json.content
 	recursiveEventAdder(element)
-	if(json.head) document.contentDocument.head.innerHTML = json.head
+	if(json.head) iframe.contentDocument.head.innerHTML = json.head
 }
 
 /*
@@ -247,7 +248,6 @@ socket.on("messageAdmin",(data) => {
 });
 
 socket.on("need_data",(data) => {
-	console.log("data was requested")
 	let change = serializeSocketJson(iframe.contentDocument.body)
 	socket.emit("sendAll",change)
 
@@ -270,7 +270,7 @@ function sendInteraction(element,event){
 }
 
 function showPosGrid(){
-	document.contentDocument.body.innerHTML += `<span id="relativePosContainer" style="position: sticky; top: 0px; left: 0px; width: 100vw; height: 100vh; margin: 0px; pointer-events: none;">
+	iframe.contentDocument.body.innerHTML += `<span id="relativePosContainer" style="position: sticky; top: 0px; left: 0px; width: 100vw; height: 100vh; margin: 0px; pointer-events: none;">
         <span id="leftArrow" style="position: sticky;font-size: 20pt;pointer-events: all; left:0px; top:50%;">
             &#x2190;
         </span>
@@ -286,21 +286,21 @@ function showPosGrid(){
     </span>`
 
 
-	document.contentDocument.getElementById("relativePosContainer").style.display = "block";
+	iframe.contentDocument.getElementById("relativePosContainer").style.display = "block";
 
-	document.contentDocument.getElementById("leftArrow").addEventListener('click',(event) => {
+	iframe.contentDocument.getElementById("leftArrow").addEventListener('click',(event) => {
 		socket.emit("arrow_pressed",{"dir":"left"});
 		console.log("arrow pressed")
 	})
-	document.contentDocument.getElementById("rightArrow").addEventListener('click',(event) => {
+	iframe.contentDocument.getElementById("rightArrow").addEventListener('click',(event) => {
 		socket.emit("arrow_pressed",{"dir":"right"})
 		console.log("arrow pressed")
 	})
-	document.contentDocument.getElementById("topArrow").addEventListener('click',(event) => {
+	iframe.contentDocument.getElementById("topArrow").addEventListener('click',(event) => {
 		socket.emit("arrow_pressed",{"dir":"top"})
 		console.log("arrow pressed")
 	})
-	document.contentDocument.getElementById("bottomArrow").addEventListener('click',(event) => {
+	iframe.contentDocument.getElementById("bottomArrow").addEventListener('click',(event) => {
 		socket.emit("arrow_pressed",{"dir":"bottom"})
 		console.log("arrow pressed")
 	})
@@ -324,16 +324,14 @@ function shareFunc(){
 	shareButton.remove()
 	role = "admin"
 	socket.emit("set_role",{"role":"admin"})
-	let change = serializeSocketJson(document.contentDocument.body)
+	let change = serializeSocketJson(iframe.contentDocument.body)
 	socket.emit("sendAll",change)
 	let observer = new MutationObserver(socketUpdater);
-	observer.observe(document.contentDocument.body, {
-	  observer.observe(document.contentDocument.body, {
+	observer.observe(iframe.contentDocument.body, {
 	  subtree: true,
 	  childList: true,
 	  attributes: true,
 	  characterData: true
-	})
 	})
 }
 
