@@ -98,7 +98,7 @@ def arrow_check():
 
 @sio.event
 def connect(sid, environ, auth):
-    print("connect")
+    print("connect",sid)
     
 
 @sio.event
@@ -107,11 +107,11 @@ def set_role(sid, data):
 
     if data["role"] == "admin":
         createRoom(sid)
-        print("admin logged in")
+        print("admin logged in",sid)
         devices.append({"sid":sid,"pos":[0,0],"width":dimensions[sid][0],"height":dimensions[sid][1]})
 
     if data["role"] == "client":
-        print("client logged in")
+        print("client logged in",sid)
 
 
 @sio.event
@@ -172,6 +172,6 @@ def setDimension(sid,data):
     print("dimension:",sid,data)
 
 if __name__ == '__main__':
-    eventlet.wsgi.server(eventlet.listen(('', 8000)), app)
+    eventlet.wsgi.server(eventlet.listen(('', 8000)), app, log_output=False)
 
 
