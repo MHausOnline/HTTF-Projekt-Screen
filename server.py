@@ -24,12 +24,10 @@ def sendToAdmin(event,sid,data):
     print("sending to admin")
     for i,value in role.items():
         if value["role"] == "admin":
-            if sid2room.get(sid) != None:
-                sio.emit(event, data, to=i, room=sid2room[sid])
-            else:
-                sio.emit(event, data, to=i)
+            sio.emit(event, data, to=i)
+            print("2admin:",event,sid,data, sid2room.get(sid))
             break
-    print("2admin:",event,sid,data, sid2room.get(sid))
+    
 
 def createRoom(sid):
     roomName = str(random.randint(0,9)) + str(random.randint(0,9))
@@ -140,7 +138,7 @@ def join_room(sid,data):
     enterRoom(sid,data["room"])
 
     if role[sid]["role"] == "client":
-        sendToAdmin("need_data",sid,{})
+        sendToAdmin("need_data",sid,{"requestContent":True})
     
     print (f"Welcome in room {data} your role is {role[sid]['role']}")
 

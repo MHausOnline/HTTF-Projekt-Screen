@@ -244,6 +244,7 @@ if(message.type == "set_role"){
 socket.on("joined_room",(data) => {
 	infoDiv.innerHTML = ""
 	infoDiv.innerText = data.room
+	console.log("joined room",data.room)
 });
 
 socket.on("messageAll",(data) => {
@@ -325,7 +326,7 @@ function joinFunc(){
 	shareButton.remove()
 	role = "client"
 	socket.emit("set_role",{"role":"client"})
-	
+
 	askQuestion("What id?",(roomId)=>{
 		infoDiv.innerHTML = ""
 		showPosGrid()
