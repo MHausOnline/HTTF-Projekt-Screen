@@ -332,8 +332,12 @@ function shareFunc(){
 	socket.emit("sendAll",change)
 	let observer = new MutationObserver(socketUpdater);
 	observer.observe(document.contentDocument.body, {
+	  observer.observe(document.contentDocument.body, {
 	  subtree: true,
-	  childList: true
+	  childList: true,
+	  attributes: true,
+	  characterData: true
+	})
 	})
 }
 
