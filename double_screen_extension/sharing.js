@@ -132,7 +132,7 @@ function nestedDOMCopy(element){
 			}
 		}
 	
-		if(element.nodeName.toLowerCase() =="A"){
+		if(element.nodeName.toLowerCase() =="a"){
 			if(element.hasAttribute("href")) newNode.removeAttribute("href")
 			eventListeners.push("click")
 		}
@@ -208,11 +208,26 @@ function askQuestion(question,callback){
 	theForm.addEventListener("submit",(event)=>{container.remove();event.preventDefault();callback(input.value);})
 }
 
+function recursiveEventAdder(element){
+	if(element.nodeType === Node.ELEMENT_NODE){
+		if(element.hasAttribute("eventlisteners")){
+			let events = JSON.parse(element.getAttribute("eventlisteners"))
+			for(let ev of event){
+				element.addEventListener(ev,()=>{sendInteraction(this,ev)})
+			}
+		}
+		for (let nodeIndex = 0;nodeIndex < element.childNodes.length;nodeIndex++) {//add all children of the original node but also annotate them
+			recursiveEventAdder(element.childNodes[nodeIndex])
+		}
+	}
+}
+
 function parseSocketJson(json){
 	let element = getElementByPath(json.path)
 	element.outerHTML = json.content
+	iframe.contentDocument.head.innerHTML = json.head
 	recursiveEventAdder(element)
-	if(json.head) iframe.contentDocument.head.outerHTML = json.head
+	
 }
 
 /*
@@ -353,7 +368,7 @@ function serializeSocketJson(element){
 	return {
 		"content": nestedDOMCopy(element).outerHTML,
 		"path": getElementPath(element),
-		"head": iframe.contentDocument.head.outerHTML
+		"head": iframe.contentDocument.head.innerHTML
 		}
 }
 
