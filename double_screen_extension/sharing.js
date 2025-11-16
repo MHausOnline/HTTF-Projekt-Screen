@@ -9,6 +9,8 @@
 
 const socket = io("http://localhost:8000");
 
+socket.emit("setDimension",{"dim":[window.innerWidth,window.innerHeight]})
+
 
 const css = `
 	html, body {
@@ -66,7 +68,7 @@ iframe.onload = () => {
 	
 	console.log("initialized keylogger")
 
-	document.documentElement.head.innerHTML = ""
+	document.head.innerHTML = ""
 
 }
 
@@ -183,24 +185,24 @@ function getSerialized(parseNode){
 
 var role = "passive"
 
-let infoDiv = iframe.contentDocument.createElement("div")
+let infoDiv = document.createElement("div")
 infoDiv.style.zIndex = 1000
 infoDiv.style.backgroundColor = "white" 
 infoDiv.style.position = "sticky"
 infoDiv.style.bottom = "50px"
 
 
-let joinButton = iframe.contentDocument.createElement("button")
+let joinButton = document.createElement("button")
 joinButton.innerText = "Join screen"
 joinButton.addEventListener("click",joinFunc)
 infoDiv.appendChild(joinButton)
 
-let shareButton = iframe.contentDocument.createElement("button")
+let shareButton = document.createElement("button")
 shareButton.innerText = "Expand screen"
 shareButton.addEventListener("click",shareFunc)
 infoDiv.appendChild(shareButton)
 
-iframe.contentDocument.body.appendChild(infoDiv)
+document.body.appendChild(infoDiv)
 
 console.log(infoDiv)
 
@@ -323,6 +325,7 @@ function joinFunc(){
 	shareButton.remove()
 	role = "client"
 	socket.emit("set_role",{"role":"client"})
+	
 	askQuestion("What id?",(roomId)=>{
 		infoDiv.innerHTML = ""
 		showPosGrid()

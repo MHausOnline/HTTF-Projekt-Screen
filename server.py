@@ -21,6 +21,7 @@ app = socketio.WSGIApp(sio, static_files={
 
 
 def sendToAdmin(event,sid,data):
+    print("sending to admin")
     for i,value in role.items():
         if value["role"] == "admin":
             if sid2room.get(sid) != None:
@@ -28,7 +29,7 @@ def sendToAdmin(event,sid,data):
             else:
                 sio.emit(event, data, to=i)
             break
-    print("2admin:",event,sid,data)
+    print("2admin:",event,sid,data, sid2room.get(sid))
 
 def createRoom(sid):
     roomName = str(random.randint(0,9)) + str(random.randint(0,9))
@@ -108,12 +109,11 @@ def set_role(sid, data):
 
     if data["role"] == "admin":
         createRoom(sid)
-        print("roomthere")
+        print("admin logged in")
         devices.append({"sid":sid,"pos":[0,0],"width":dimensions[sid][0],"height":dimensions[sid][1]})
 
     if data["role"] == "client":
-        sendToAdmin("need_data",sid,{})
-        print("welcome")
+        print("client logged in")
 
 
 @sio.event
@@ -138,7 +138,11 @@ def arrow_pressed(sid, data):
 @sio.event
 def join_room(sid,data):
     enterRoom(sid,data["room"])
-    print (f"Welcome in room {data}")
+
+    if role[sid]["role"] == "client":
+        sendToAdmin("need_data",sid,{})
+    
+    print (f"Welcome in room {data} your role is {role[sid]['role']}")
 
 @sio.event
 def my_message(sid, data):
