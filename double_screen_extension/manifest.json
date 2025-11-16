@@ -2,9 +2,14 @@
     "manifest_version": 3,
     "name": "DoubleScreenExtension",
     "background": {
-      "page": "background.js",
-      "type": "module"
+      "page": "background.js"
     },
+    "web_accessible_resources": [{
+      "matches": ["<all_urls>"],
+      "resources": ["socket.io/client-dist/socket.io.esm.min.js"]
+   }],
+
+    "host_permissions": ["<all_urls>"],
     "version":"1.0",
     "description": "An extension for connecting multiplt devices that will act like a single scren.",
     
@@ -12,8 +17,8 @@
         "213": "icon.png"
     },
     "content_security_policy": {
-		"extension_pages": "default-src 'self'"
-	},
+      "extension_pages": "default-src 'self'"
+    },
     "content_scripts": [
         {
             "matches": ["<all_urls>"],

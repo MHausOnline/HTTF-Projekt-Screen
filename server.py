@@ -18,6 +18,12 @@ app = socketio.WSGIApp(sio, static_files={
 })
 
 
+def sendToAdmin(event,sid,data):
+    for i,value in role.items():
+        if value["role"] == "admin":
+            sio.emit(event, data, to=i)
+            break
+    print("2admin:",event,sid,data)
 
 def createRoom(sid):
     roomName = str(random.randint(0,9)) + str(random.randint(0,9))
@@ -83,13 +89,10 @@ def arrow_check():
     print(devices)
 
 
-
-
 @sio.event
 def connect(sid, environ, auth):
-    random_uuid = uuid.uuid4()
-    sio.emit("set_uuid",{"uuid":str(random_uuid)},to=sid)
     print("connect")
+    
 
 @sio.event
 def set_role(sid, data):
@@ -101,6 +104,7 @@ def set_role(sid, data):
         devices.append({"sid":sid,"pos":[0,0],"width":dimensions[sid][0],"height":dimensions[sid][1]})
 
     if data["role"] == "client":
+        sendToAdmin("need_data",sid,{})
         print("welcome")
 
 
@@ -138,21 +142,21 @@ def disconnect(sid):
 
 @sio.event 
 def sendAdmin(sid, data):
-    for i,value in enumerate(role):
-        if value["role"] == "admin":
-            sio.emit("messageAdmin", data, to=i)
-            break
+    sendToAdmin(event,sid,data)
+    print("admin:",sid,data)
 
 @sio.event
 def sendAll(sid, data):
-    for f, value in enumerate(role):
+    for f, value in role.items():
          if value["role"] == "client":
             sio.emit("messageAll", data, to=f)
             break
+    print("all:",sid,data)
 
 @sio.event
 def setDimension(sid,data):
     dimensions[sid] = data["dim"]
+    print("dimension:",sid,data)
 
 if __name__ == '__main__':
     eventlet.wsgi.server(eventlet.listen(('', 8000)), app)

@@ -1,5 +1,3 @@
-import {io} from "./socket/node_modules/socket.io/client-dist/socket.io.esm.min.js";
-
 const socket = io("http://localhost:8000");
 
 socket.emit("join_room",{"room":""})
