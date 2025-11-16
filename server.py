@@ -25,7 +25,7 @@ def sendToAdmin(event,sid,data):
     for i,value in role.items():
         if value["role"] == "admin":
             sio.emit(event, data, to=i)
-            print("2admin:",event,sid,data, sid2room.get(sid))
+            print("2admin:",event,data, sid2room.get(sid), i)
             break
     
 
@@ -152,7 +152,7 @@ def disconnect(sid):
 
 @sio.event 
 def sendAdmin(sid, data):
-    sendToAdmin(event,sid,data)
+    sendToAdmin("messageAdmin",sid,data)
     print("admin:",sid,data)
 
 @sio.event

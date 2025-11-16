@@ -263,7 +263,8 @@ socket.on("messageAdmin",(data) => {
 });
 
 socket.on("need_data",(data) => {
-	let change = serializeSocketJson(document.body)
+	console.log("data was requested")
+	let change = serializeSocketJson(iframe.contentDocument.body)
 	socket.emit("sendAll",change)
 
 	console.log("data was sent")
