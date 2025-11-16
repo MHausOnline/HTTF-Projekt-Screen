@@ -176,7 +176,6 @@ infoDiv.style.backgroundColor = "white"
 infoDiv.style.position = "sticky"
 infoDiv.style.bottom = "50px"
 
-
 let joinButton = document.createElement("button")
 joinButton.innerText = "Join screen"
 joinButton.addEventListener("click",joinFunc)
