@@ -210,9 +210,9 @@ function askQuestion(question,callback){
 
 function parseSocketJson(json){
 	let element = getElementByPath(json.path)
-	element.innerHTML = json.content
+	element.outerHTML = json.content
 	recursiveEventAdder(element)
-	if(json.head) iframe.contentDocument.head.innerHTML = json.head
+	if(json.head) iframe.contentDocument.head.outerHTML = json.head
 }
 
 /*
@@ -351,10 +351,9 @@ function makeFromSerialized(json){
 
 function serializeSocketJson(element){
 	return {
-		"content": nestedDOMCopy(element).innerHTML,
+		"content": nestedDOMCopy(element).outerHTML,
 		"path": getElementPath(element),
-		"head": iframe.contentDocument.head.innerHTML
+		"head": iframe.contentDocument.head.outerHTML
 		}
 }
-
 
