@@ -11,6 +11,8 @@ role = {}
 dimensions = {}
 opposite = {"left":"right","right":"left","top":"bottom","bottom":"top"}
 vectors = {"left":[-1,0],"right":[1,0],"top":[0,-1],"bottom":[0,1],}
+sid2room = {}
+
 
 sio = socketio.Server(cors_allowed_origins=['*'])
 app = socketio.WSGIApp(sio, static_files={
@@ -21,7 +23,10 @@ app = socketio.WSGIApp(sio, static_files={
 def sendToAdmin(event,sid,data):
     for i,value in role.items():
         if value["role"] == "admin":
-            sio.emit(event, data, to=i)
+            if sid2room.get(sid) != None:
+                sio.emit(event, data, to=i, room=sid2room[sid])
+            else:
+                sio.emit(event, data, to=i)
             break
     print("2admin:",event,sid,data)
 
@@ -32,8 +37,11 @@ def createRoom(sid):
     return roomName
 
 def enterRoom(sid,roomName):
+    sid2room[sid] = roomName
+
     sio.enter_room(sid,roomName)
-    sio.emit("joined_room",{"room":roomName},to=sid)
+
+    sio.emit("joined_room",{"room":roomName},to=sid, room=sid2room[sid])
 
 def device_pos_set(sid):
     for i in range(0,len(devices)):
@@ -149,7 +157,10 @@ def sendAdmin(sid, data):
 def sendAll(sid, data):
     for f, value in role.items():
          if value["role"] == "client":
-            sio.emit("messageAll", data, to=f)
+            if sid2room.get(sid) != None:
+                sio.emit("messageAll", data, to=f, room=sid2room[sid])
+            else:
+                sio.emit("messageAll", data, to=f)
             break
     print("all:",sid,data)
 
