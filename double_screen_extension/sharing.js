@@ -40,9 +40,6 @@ iframe.style.height = "100vh";
 iframe.style.margin = "0px";
 iframe.style.padding = "0px";
 iframe.style.border = "hidden";
-document.body.style.padding = "0px"
-document.body.style.margin = "0px"
-document.body.style.overflowY = "hidden"
 
 document.documentElement.style.overflowY = "hidden"
 
@@ -50,6 +47,10 @@ let saved = document.documentElement.innerHTML
 
 
 document.documentElement.innerHTML = "<head></head><body></body>"
+document.body.style.padding = "0px"
+document.body.style.margin = "0px"
+document.body.style.overflowY = "hidden"
+
 
 document.body.appendChild(iframe);
 
