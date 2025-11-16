@@ -47,6 +47,7 @@ let saved = document.documentElement.innerHTML
 
 
 document.documentElement.innerHTML = "<head></head><body></body>"
+document.body.style = ""
 document.body.style.padding = "0px"
 document.body.style.margin = "0px"
 document.body.style.wisth = "200vw"
